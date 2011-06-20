@@ -1,0 +1,26 @@
+[Buildset]
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00\x0e\x00d\x00r\x00e\x00a\x00m\x00e\x00r)
+
+[Launch]
+Launch Configurations=Launch Configuration 0
+
+[Launch][Launch Configuration 0]
+Configured Launch Modes=execute
+Configured Launchers=nativeAppLauncher
+Name=New Native Application Configuration
+Type=Native Application
+
+[Launch][Launch Configuration 0][Data]
+Arguments=-pa ./ebin -s reloader -s server start
+Dependencies=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x02\x00\x00\x00\x0e\x00d\x00r\x00e\x00a\x00m\x00e\x00r\x00\x00\x00\x06\x00a\x00l\x00l)
+Dependency Action=Build
+EnvironmentGroup=default
+Executable=erl
+External Terminal=konsole --noclose --workdir %workdir -e %exe
+Project Target=
+Use External Terminal=false
+Working Directory=file:///home/chaos/Projects/dreamer/
+isExecutable=true
+
+[Project]
+VersionControlSupport=kdevgit
