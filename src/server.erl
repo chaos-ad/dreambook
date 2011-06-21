@@ -52,7 +52,7 @@ peername(Socket) ->
 
 handle_http_request(Request) ->
     ?LOG_TRACE(": request from ~s: ~s", [peername(Request:get(socket)), Request:get(raw_path)]),
-    case "/api/" =:= Request:get(path) of
+    case "/api" =:= Request:get(path) of
         false -> Request:respond({400, [], []});
         true  ->
             QS = Request:parse_qs(),
