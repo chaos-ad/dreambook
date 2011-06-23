@@ -1,4 +1,4 @@
--module(crawler).
+-module(dreambook_crawler).
 -compile(export_all).
 
 -include_lib("emysql/include/emysql.hrl").
