@@ -17,6 +17,7 @@ start(Options)      -> gen_server:start( {local, ?MODULE}, ?MODULE, Options, [] 
 stop(Pid)           -> stop(Pid, shutdown).
 stop(Pid, Reason)   -> gen_server:call(Pid, {shutdown, Reason}, infinity).
 
+find_books(Keyword)          -> gen_server:call(?MODULE, {find_books, Keyword}).
 find_meaning(Keyword)        -> gen_server:call(?MODULE, {find_meaning, Keyword}).
 find_keywords(Keyword)       -> gen_server:call(?MODULE, {find_keywords, Keyword}).
 
@@ -54,9 +55,9 @@ init(Options) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-handle_call({find_keywords, Keyword}, _, State) ->
+handle_call({find_books, Keyword}, _, State) ->
     Key = emysql_util:quote(Keyword),
-    Query = "SELECT Keyword FROM sonnik WHERE Keyword LIKE ~s GROUP BY Keyword",
+    Query = "SELECT Book FROM sonnik WHERE Keyword = ~s",
     QueryBin = iolist_to_binary(io_lib:format(Query, [Key])),
     case execute(QueryBin) of
         R when is_record(R, error_packet)  -> {reply, make_error(R), State};
@@ -71,6 +72,16 @@ handle_call({find_meaning, Keyword}, _, State) ->
         R when is_record(R, error_packet)  -> {reply, make_error(R), State};
         R when is_record(R, result_packet) -> {reply, lists:map(fun([X,Y]) -> {X, Y} end, R#result_packet.rows), State}
     end;
+
+handle_call({find_keywords, Keyword}, _, State) ->
+    Key = emysql_util:quote(Keyword),
+    Query = "SELECT Keyword FROM sonnik WHERE Keyword LIKE ~s GROUP BY Keyword",
+    QueryBin = iolist_to_binary(io_lib:format(Query, [Key])),
+    case execute(QueryBin) of
+        R when is_record(R, error_packet)  -> {reply, make_error(R), State};
+        R when is_record(R, result_packet) -> {reply, lists:flatten(R#result_packet.rows), State}
+    end;
+
 
 handle_call({add_user, UserID, Balance}, _, State) ->
     Uid = emysql_util:quote(UserID),

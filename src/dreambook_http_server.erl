@@ -43,6 +43,7 @@ handle_http_request(Request) ->
         case Method of
             "get_balance"   -> Request:ok({"application/json", get_balance(UID)});
             "get_history"   -> Request:ok({"application/json", get_history(UID)});
+            "find_books"    -> Request:ok({"application/json", find_books(Keyword)});
             "find_meaning"  -> Request:ok({"application/json", find_meaning(UID, Keyword)});
             "find_keywords" -> Request:ok({"application/json", find_keywords(Keyword)});
             _               -> erlang:error({invalid_method, 405})
@@ -69,15 +70,19 @@ validate_arg(_) -> ok.
 
 get_balance(UID) ->
     validate_arg(UID),
-    json({struct, [{<<"Баланс">>, dreambook_db_server:get_balance(UID)}]}).
+    json({struct, [{<<"Banalce">>, dreambook_db_server:get_balance(UID)}]}).
 
 get_history(UID) ->
     validate_arg(UID),
-    json({struct, [{<<"История запросов">>, dreambook_db_server:get_history(UID)}]}).
+    json({struct, [{<<"History">>, dreambook_db_server:get_history(UID)}]}).
+
+find_books(Keyword) ->
+    validate_arg(Keyword),
+    json({struct, [{<<"Books">>, dreambook_db_server:find_books(Keyword)}]}).
 
 find_keywords(Keyword) ->
     validate_arg(Keyword),
-    json(dreambook_db_server:find_keywords(Keyword)).
+    json({struct, [{<<"Keywords">>, dreambook_db_server:find_keywords(Keyword)}]}).
 
 find_meaning(UID, Keyword) ->
     validate_arg(UID),
@@ -96,13 +101,12 @@ find_meaning(UID, Keyword) ->
                     end
             end,
 
-            Meanings = lists:map(fun({B,M}) -> {struct,[{<<"Сонник">>,B},{<<"Значение">>,M}]} end, Data),
-            json({struct, [{<<"Толкования">>, Meanings}]})
+            Meanings = lists:map(fun({B,M}) -> {struct,[{<<"Book">>,B},{<<"Meaning">>,M}]} end, Data),
+            json({struct, [{<<"Meanings">>, Meanings}]})
     end.
 
 json(Data) ->
     Encode = mochijson2:encoder([{utf8, true}]),
-%     Encode(Data).
     dreambook_utils:json_pretty_print(Encode(Data)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
