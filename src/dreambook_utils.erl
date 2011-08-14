@@ -1,6 +1,4 @@
 -module(dreambook_utils).
-
--include("logger.hrl").
 -compile(export_all).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

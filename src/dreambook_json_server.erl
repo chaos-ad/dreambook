@@ -1,20 +1,23 @@
--module(dreambook_http_server).
+-module(dreambook_json_server).
 
--include("logger.hrl").
+-include_lib("logger.hrl").
 -include_lib("emysql/include/emysql.hrl").
 
--export([start/0, start/1, stop/1]).
+-export([start_link/0, start_link/1, stop/1]).
 -export([handle_http_request/1]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-start() ->
-    start([]).
+start_link() ->
+    start_link([]).
 
-start(Options) ->
-    WebIP   = proplists:get_value(web_ip, Options, "0.0.0.0"),
-    WebPort = proplists:get_value(web_port, Options, 8080),
-    mochiweb_http:start([{ip, WebIP}, {port, WebPort}, {loop, {?MODULE, handle_http_request, []}}]).
+start_link(Options) ->
+    Port = proplists:get_value(port, Options, 8080),
+    IP   = proplists:get_value(ip, Options, "0.0.0.0"),
+    Name = dreambook_json_mochiserver,
+    Loop = fun(Request) -> ?MODULE:handle_http_request(Request) end,
+    MochiOptions = [{ip, IP}, {port, Port}, {loop, Loop}, {name, Name}],
+    mochiweb_http:start(MochiOptions).
 
 stop(Pid) ->
     mochiweb_http:stop(Pid).
@@ -30,7 +33,7 @@ handle_http_request(Request) ->
             _              -> erlang:error({invalid_path, 404})
         end,
 
-        ?LOG_TRACE(": request from ~s: ~s", [dreambook_utils:peername(Request:get(socket)), Request:get(raw_path)]),
+        ?LOG_DEBUG("Request from ~s: ~s", [dreambook_utils:peername(Request:get(socket)), Request:get(raw_path)]),
 
         Options = Request:parse_qs(),
         UID = proplists:get_value("uid", Options),
@@ -52,10 +55,10 @@ handle_http_request(Request) ->
         _:{favicon, Code} ->
             Request:respond({Code, [], []}); %% Silently ignore favicon
         _:{Reason, Code} when is_integer(Code) ->
-            ?LOG_TRACE(": Error occured: ~p; responding by page ~B ", [Reason, Code]),
+            ?LOG_TRACE("Error occured: ~p; responding by page ~B", [Reason, Code]),
             Request:respond({Code, [], []});
         Cat:Err ->
-            ?LOG_TRACE(": Error ~p:~p occured: responding by page ~B ", [Cat, Err, 500]),
+            ?LOG_TRACE("Error ~p:~p occured: responding by page ~B", [Cat, Err, 500]),
             Request:respond({500,  [], []})
     end.
 

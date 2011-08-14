@@ -1,0 +1,16 @@
+{application, dreambook,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, [dreambook_json_server, dreambook_json_mochiserver, dreambook_db_server, dreambook_database]},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  inets,
+                  crypto,
+                  emysql,
+                  social_api
+                 ]},
+  {mod, { dreambook_app, []}},
+  {env, []}
+ ]}.

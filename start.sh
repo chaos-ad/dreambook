@@ -1,2 +1,3 @@
 #!/bin/bash
-erl -pa ./ebin -s dreambook_logger -s dreambook_db_server -s dreambook_http_server
+export ERL_LIBS="./deps/:../:${ERL_LIBS}"
+exec erl -pa ebin -boot start_sasl -s dreambook -sname sonnik@`hostname` -config priv/example
